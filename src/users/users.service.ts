@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
+
 import * as uuidv4 from 'uuid/v4';
+import * as jwt from 'jsonwebtoken';
+import config from '../config/keys';
 
 @Injectable()
 export class UsersService {
@@ -23,7 +26,9 @@ export class UsersService {
 
   async createUser(user: User): Promise<User> {
     const newUser = user;
-    user.id = uuidv4();
+    const _id = uuidv4();
+    user.id = _id;
+    user.token = jwt.sign({ _id }, config.secretKey);
     return await this.usersRepository.save(newUser);
   }
 
