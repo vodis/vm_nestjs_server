@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 
 import * as uuidv4 from 'uuid/v4';
 import * as jwt from 'jsonwebtoken';
-import config from '../config/keys';
+import tokenConfig from '../config/token.config';
 
 @Injectable()
 export class UsersService {
@@ -25,10 +25,28 @@ export class UsersService {
   }
 
   async createUser(user: User): Promise<User> {
+    const isUserExist = await this.usersRepository.find({
+      select: ['email'],
+      where: [{ email: user.email }],
+    });
+
+    if (!!isUserExist.length) {
+      throw new HttpException(
+        'Email address already exists!',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     const newUser = user;
     const _id = uuidv4();
     user.id = _id;
-    user.token = jwt.sign({ _id }, config.secretKey);
+    user.token = jwt.sign(
+      { _id },
+      tokenConfig.secretKey,
+      tokenConfig.expiryDate,
+    );
+    user.create_at = new Date();
+    user.update_at = new Date();
     return await this.usersRepository.save(newUser);
   }
 

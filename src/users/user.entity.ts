@@ -1,11 +1,5 @@
-import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  BaseEntity,
-  BeforeInsert,
-} from 'typeorm';
-import { IsEmail, IsDate } from 'class-validator';
+import { Entity, Column, PrimaryColumn, BaseEntity } from 'typeorm';
+import { IsEmail, MinLength } from 'class-validator';
 
 @Entity()
 export class User extends BaseEntity {
@@ -17,11 +11,13 @@ export class User extends BaseEntity {
   email: string;
 
   @Column()
-  @IsDate()
+  @MinLength(6)
+  password: string;
+
+  @Column()
   create_at: Date;
 
   @Column()
-  @IsDate()
   update_at: Date;
 
   @Column()
