@@ -1,7 +1,8 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
+import * as uuidv4 from 'uuid/v4';
 
 @Injectable()
 export class UsersService {
@@ -15,13 +16,15 @@ export class UsersService {
 
   async getUser(_id: number): Promise<User[]> {
     return await this.usersRepository.find({
-      select: ['firstName', 'lastName', 'email'],
+      select: ['id', 'email', 'create_at', 'update_at'],
       where: [{ id: _id }],
     });
   }
 
   async createUser(user: User): Promise<User> {
-    return await this.usersRepository.save(user);
+    const newUser = user;
+    user.id = uuidv4();
+    return await this.usersRepository.save(newUser);
   }
 
   async updateUser(user: User) {

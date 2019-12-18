@@ -1,24 +1,29 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-import { Length, IsEmail } from 'class-validator';
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  BaseEntity,
+  BeforeInsert,
+} from 'typeorm';
+import { IsEmail, IsDate } from 'class-validator';
 
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
-  @Length(3, 25)
-  firstName: string;
-
-  @Column()
-  @Length(3, 25)
-  lastName: string;
+export class User extends BaseEntity {
+  @PrimaryColumn('uuid')
+  id: string;
 
   @Column()
   @IsEmail()
   email: string;
 
   @Column()
-  @Length(6, 32)
-  password: string;
+  @IsDate()
+  create_at: Date;
+
+  @Column()
+  @IsDate()
+  update_at: Date;
+
+  @Column()
+  token: string;
 }
