@@ -38,4 +38,9 @@ export class UsersController {
   deleteUser(@Param() params) {
     return this.service.deleteUser(params.id);
   }
+
+  @Post('login')
+  login(@Body() user: User) {
+    return this.service.findByCredentials(user.email, user.password);
+  }
 }

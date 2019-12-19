@@ -33,7 +33,7 @@ export class UsersService {
 
     if (!!isUserExist.length) {
       throw new HttpException(
-        'Email address already exists!',
+        'Email address has already registered!',
         HttpStatus.FORBIDDEN,
       );
     }
@@ -58,5 +58,24 @@ export class UsersService {
 
   async deleteUser(user: User) {
     this.usersRepository.delete(user);
+  }
+
+  async findByCredentials(email: string, password: string) {
+    const user = await this.usersRepository.find({
+      select: ['id', 'email', 'password', 'create_at', 'update_at', 'token'],
+      where: [{ email }],
+    });
+
+    if (!user) {
+      throw new HttpException('Unable to login!', HttpStatus.FORBIDDEN);
+    }
+
+    const isMatch = await bcrypt.compare(password, user[0].password);
+
+    if (!isMatch) {
+      throw new HttpException('Unable to login!', HttpStatus.FORBIDDEN);
+    }
+
+    return user;
   }
 }
