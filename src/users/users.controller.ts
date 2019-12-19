@@ -6,15 +6,18 @@ import {
   Put,
   Delete,
   Param,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
+import { LoggingInterceptor } from 'src/interceptor/logging.interceptor';
 
 @Controller('users')
 export class UsersController {
   constructor(private service: UsersService) {}
 
   @Get()
+  @UseInterceptors(new LoggingInterceptor())
   findAll(): Promise<User[]> {
     return this.service.getUsers();
   }
