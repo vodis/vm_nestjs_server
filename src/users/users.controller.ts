@@ -9,7 +9,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './user.entity';
+import { User } from './users.entity';
 import { LoggingInterceptor } from 'src/interceptor/logging.interceptor';
 
 @Controller('users')

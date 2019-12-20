@@ -1,7 +1,7 @@
 import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './users.entity';
 
 import * as bcrypt from 'bcryptjs';
 import * as uuidv4 from 'uuid/v4';
@@ -13,6 +13,13 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
+
+  async findOne(email: string): Promise<User[]> {
+    return await this.usersRepository.find({
+      select: ['id', 'email', 'password'],
+      where: [{ email }],
+    });
+  }
 
   async getUsers(): Promise<User[]> {
     return await this.usersRepository.find();
