@@ -22,14 +22,27 @@ export class UsersService {
   }
 
   async getUsers(): Promise<User[]> {
-    return await this.usersRepository.find();
+    return await this.usersRepository.find({
+      select: ['id', 'create_at', 'update_at'],
+    });
   }
 
   async getUser(_id: number): Promise<User[]> {
     return await this.usersRepository.find({
-      select: ['id', 'email', 'create_at', 'update_at'],
+      select: ['id', 'email', 'create_at', 'update_at', 'token'],
       where: [{ id: _id }],
     });
+  }
+
+  async updateToken({ id }: User): Promise<User> {
+    const user = await this.usersRepository.findOne(id);
+    user.token = jwt.sign(
+      { id },
+      tokenConfig.secretKey,
+      tokenConfig.expiryDate,
+    );
+    user.update_at = new Date();
+    return await this.usersRepository.save(user);
   }
 
   async createUser(user: User): Promise<User> {

@@ -9,7 +9,7 @@ export class AuthController {
 
   @Post('login')
   async login(@Query() params: LoginDTO) {
-    return this.authService.login(params.email, params.password);
+    return this.authService.validateUser(params.email, params.password);
   }
 
   @UseGuards(AuthGuard('jwt'))
