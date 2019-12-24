@@ -1,14 +1,17 @@
 import { Entity, Column, PrimaryColumn, BaseEntity } from 'typeorm';
-import { IsEmail, MinLength } from 'class-validator';
+import { IsEmail, MinLength, IsOptional } from 'class-validator';
+import { CrudValidationGroups } from '@nestjsx/crud';
 
+const { UPDATE } = CrudValidationGroups;
 @Entity()
 export class User extends BaseEntity {
   @PrimaryColumn('uuid')
   id: string;
 
-  @Column()
+  @IsOptional({ groups: [UPDATE] })
   @IsEmail()
-  email: string;
+  @Column()
+  email?: string;
 
   @Column()
   @MinLength(6)

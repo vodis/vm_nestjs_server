@@ -36,16 +36,12 @@ export class UsersService {
 
   async updateToken({ id }: User): Promise<User> {
     const user = await this.usersRepository.findOne(id);
-    user.token = jwt.sign(
-      { id },
-      tokenConfig.secretKey,
-      tokenConfig.expiryDate,
-    );
+    user.token = await this.createToken(id);
     user.update_at = new Date();
     return await this.usersRepository.save(user);
   }
 
-  async createUser(user: User): Promise<User> {
+  async createUser(user: User): Promise<any> {
     const isUserExist = await this.usersRepository.find({
       select: ['email'],
       where: [{ email: user.email }],
@@ -60,42 +56,48 @@ export class UsersService {
 
     const _id = uuidv4();
     user.id = _id;
-    user.token = jwt.sign(
-      { _id },
-      tokenConfig.secretKey,
-      tokenConfig.expiryDate,
-    );
+    user.token = await this.createToken(_id);
     user.password = await bcrypt.hash(user.password, 8);
     user.create_at = new Date();
     user.update_at = new Date();
 
-    return await this.usersRepository.save(user);
+    const { password, ...result } = await this.usersRepository.save(user);
+    return result;
   }
 
-  async updateUser(user: User) {
-    this.usersRepository.save(user);
+  async updatePassword(id, oldPass, newPass, rePass) {
+    const user = await this.usersRepository.findOne(id);
+
+    const isMatch = await bcrypt.compare(oldPass, user.password);
+    if (!isMatch) {
+      throw new HttpException(
+        'Unable to change! Incorrect old password.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    if (newPass !== rePass) {
+      throw new HttpException(
+        'Unable to change! Repeated password does not correspond new one.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    user.password = await bcrypt.hash(newPass, 8);
+    await this.usersRepository.save(user);
+    return { id, message: 'Password is update!' };
   }
 
   async deleteUser(user: User) {
     this.usersRepository.delete(user);
   }
 
-  async findByCredentials(email: string, password: string) {
-    const user = await this.usersRepository.find({
-      select: ['id', 'email', 'password', 'create_at', 'update_at', 'token'],
-      where: [{ email }],
-    });
-
-    if (!user) {
-      throw new HttpException('Unable to login!', HttpStatus.FORBIDDEN);
-    }
-
-    const isMatch = await bcrypt.compare(password, user[0].password);
-
-    if (!isMatch) {
-      throw new HttpException('Unable to login!', HttpStatus.FORBIDDEN);
-    }
-
-    return user;
+  private createToken(id: string): string {
+    const token = jwt.sign(
+      { id },
+      tokenConfig.secretKey,
+      tokenConfig.expiryDate,
+    );
+    return token;
   }
 }

@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
@@ -10,16 +10,27 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateUser(email: string, password: string): Promise<any> {
+  async validateUser(email, pass): Promise<any> {
     const user = await this.usersService.findOne(email);
-    const isMatch = await bcrypt.compare(password, user[0].password);
-    if (user && isMatch) {
-      const { password, ...result } = await this.usersService.updateToken(
-        user[0],
+    if (!user.length) {
+      throw new HttpException(
+        'Unable to login! Email addresses does not exist.',
+        HttpStatus.FORBIDDEN,
       );
-      return result;
     }
-    return null;
+
+    const isMatch = await bcrypt.compare(pass, user[0].password);
+    if (!isMatch) {
+      throw new HttpException(
+        'Unable to login! Incorrect password.',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const { password, ...result } = await this.usersService.updateToken(
+      user[0],
+    );
+    return result;
   }
 
   async login(email, password) {

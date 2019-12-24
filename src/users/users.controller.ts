@@ -3,14 +3,19 @@ import {
   Post,
   Body,
   Get,
+  Patch,
   Put,
   Delete,
   Param,
   UseInterceptors,
+  UseGuards,
+  Query,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
 import { User } from './users.entity';
 import { LoggingInterceptor } from 'src/interceptor/logging.interceptor';
+import { UpdatePasswordDTO } from './dto/users.dto';
 
 @Controller('users')
 export class UsersController {
@@ -32,18 +37,22 @@ export class UsersController {
     return this.service.createUser(user);
   }
 
-  @Put()
-  update(@Body() user: User) {
-    return this.service.updateUser(user);
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('profile/:id')
+  update(
+    @Param('id') id: string,
+    @Body() { oldPassword, newPassword, rePassword }: UpdatePasswordDTO,
+  ) {
+    return this.service.updatePassword(
+      id,
+      oldPassword,
+      newPassword,
+      rePassword,
+    );
   }
 
   @Delete(':id')
-  deleteUser(@Param() params) {
+  delete(@Param() params) {
     return this.service.deleteUser(params.id);
-  }
-
-  @Post('login')
-  login(@Body() user: User) {
-    return this.service.findByCredentials(user.email, user.password);
   }
 }

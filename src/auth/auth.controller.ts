@@ -1,15 +1,14 @@
 import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { LoginDTO } from './dto/auth.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Query() params: LoginDTO) {
-    return this.authService.validateUser(params.email, params.password);
+  async login(@Query() email: string, password: string) {
+    return this.authService.validateUser(email, password);
   }
 
   @UseGuards(AuthGuard('jwt'))
