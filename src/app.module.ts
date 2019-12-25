@@ -6,9 +6,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { UsersRulesModule } from './users-rules/users-rules.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(), AuthModule, UsersModule],
+  imports: [TypeOrmModule.forRoot(), AuthModule, UsersModule, UsersRulesModule],
   controllers: [AppController],
   providers: [AppService],
 })

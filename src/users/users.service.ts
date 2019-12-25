@@ -7,11 +7,13 @@ import * as bcrypt from 'bcryptjs';
 import * as uuidv4 from 'uuid/v4';
 import * as jwt from 'jsonwebtoken';
 import tokenConfig from '../config/token.config';
+import { UsersRulesService } from '../users-rules/users-rules.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
+    private readonly usersRulesService: UsersRulesService,
   ) {}
 
   async findOne(email: string): Promise<User[]> {
@@ -55,6 +57,7 @@ export class UsersService {
     user.update_at = new Date();
 
     const { password, ...result } = await this.usersRepository.save(user);
+    await this.usersRulesService.createDefaultRules(user.id);
     return result;
   }
 
