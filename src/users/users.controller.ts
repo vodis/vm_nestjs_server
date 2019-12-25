@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UseGuards,
   Query,
+  Headers,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UsersService } from './users.service';
@@ -53,7 +54,7 @@ export class UsersController {
 
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  delete(@Param() params) {
-    return this.service.deleteUser(params.id);
+  delete(@Param() params, @Headers() req) {
+    return this.service.deleteUser(params.id, req.authorization);
   }
 }

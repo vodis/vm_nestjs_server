@@ -27,7 +27,7 @@ export class UsersService {
     });
   }
 
-  async getUserById(_id: number): Promise<User[]> {
+  async getUserById(_id: string): Promise<User[]> {
     return await this.usersRepository.find({
       select: ['id', 'email', 'create_at', 'update_at', 'token'],
       where: [{ id: _id }],
@@ -87,8 +87,14 @@ export class UsersService {
     return { id, message: 'Password is update!' };
   }
 
-  async deleteUser(user: User) {
-    this.usersRepository.delete(user);
+  async deleteUser(userId: string, userToken: string) {
+    const user = await this.getUserById(userId);
+    const isMatch = user[0].token === userToken.split(' ')[1];
+    if (!isMatch) {
+      throw new HttpException('Insufficiently rights', HttpStatus.FORBIDDEN);
+    }
+    this.usersRepository.delete(userId);
+    return { id: userId, message: 'User deleted' };
   }
 
   private createToken(id: string): string {
