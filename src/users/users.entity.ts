@@ -13,9 +13,10 @@ export class User extends BaseEntity {
   @Column()
   email?: string;
 
-  @Column()
+  @IsOptional({ groups: [UPDATE] })
   @MinLength(6)
-  password: string;
+  @Column()
+  password?: string;
 
   @Column()
   create_at: Date;

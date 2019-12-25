@@ -29,7 +29,7 @@ export class UsersController {
 
   @Get(':id')
   get(@Param() params) {
-    return this.service.getUser(params.id);
+    return this.service.getUserById(params.id);
   }
 
   @Post()

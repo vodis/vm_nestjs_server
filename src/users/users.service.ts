@@ -27,18 +27,11 @@ export class UsersService {
     });
   }
 
-  async getUser(_id: number): Promise<User[]> {
+  async getUserById(_id: number): Promise<User[]> {
     return await this.usersRepository.find({
       select: ['id', 'email', 'create_at', 'update_at', 'token'],
       where: [{ id: _id }],
     });
-  }
-
-  async updateToken({ id }: User): Promise<User> {
-    const user = await this.usersRepository.findOne(id);
-    user.token = await this.createToken(id);
-    user.update_at = new Date();
-    return await this.usersRepository.save(user);
   }
 
   async createUser(user: User): Promise<any> {
@@ -63,6 +56,12 @@ export class UsersService {
 
     const { password, ...result } = await this.usersRepository.save(user);
     return result;
+  }
+
+  async updateToken(user: User): Promise<User> {
+    user.token = await this.createToken(user.id);
+    user.update_at = new Date();
+    return await this.usersRepository.save(user);
   }
 
   async updatePassword(id, oldPass, newPass, rePass) {
