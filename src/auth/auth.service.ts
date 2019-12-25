@@ -39,4 +39,15 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
     };
   }
+
+  async logoutUser(id: string, bearerToken: string) {
+    const user = await this.usersService.compareTokenAndGetUser(
+      id,
+      bearerToken,
+    );
+    const provideDate = {
+      expiresIn: '0 seconds',
+    };
+    return await this.usersService.updateToken(user[0], provideDate);
+  }
 }

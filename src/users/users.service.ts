@@ -49,7 +49,7 @@ export class UsersService {
 
     const _id = uuidv4();
     user.id = _id;
-    user.token = await this.createToken(_id);
+    user.token = await this.createToken(_id, undefined);
     user.password = await bcrypt.hash(user.password, 8);
     user.create_at = new Date();
     user.update_at = new Date();
@@ -58,8 +58,11 @@ export class UsersService {
     return result;
   }
 
-  async updateToken(user: User): Promise<User> {
-    user.token = await this.createToken(user.id);
+  async updateToken(
+    user: User,
+    provideExpiryDate: object | undefined = tokenConfig.expiryDate,
+  ): Promise<User> {
+    user.token = await this.createToken(user.id, provideExpiryDate);
     user.update_at = new Date();
     return await this.usersRepository.save(user);
   }
@@ -87,22 +90,26 @@ export class UsersService {
     return { id, message: 'Password is update!' };
   }
 
-  async deleteUser(userId: string, userToken: string) {
-    const user = await this.getUserById(userId);
-    const isMatch = user[0].token === userToken.split(' ')[1];
-    if (!isMatch) {
-      throw new HttpException('Insufficiently rights', HttpStatus.FORBIDDEN);
-    }
-    this.usersRepository.delete(userId);
+  async deleteUser(userId: string, bearerToken: string) {
+    await this.compareTokenAndGetUser(userId, bearerToken);
+    await this.usersRepository.delete(userId);
     return { id: userId, message: 'User deleted' };
   }
 
-  private createToken(id: string): string {
-    const token = jwt.sign(
-      { id },
-      tokenConfig.secretKey,
-      tokenConfig.expiryDate,
-    );
+  async compareTokenAndGetUser(userId, bearerToken) {
+    const user = await this.getUserById(userId);
+    const isMatch = user[0].token === bearerToken.split(' ')[1];
+    if (!isMatch) {
+      throw new HttpException('Insufficiently rights', HttpStatus.FORBIDDEN);
+    }
+    return user;
+  }
+
+  private async createToken(
+    id: string,
+    provideExpiryDate: object,
+  ): Promise<string> {
+    const token = jwt.sign({ id }, tokenConfig.secretKey, provideExpiryDate);
     return token;
   }
 }

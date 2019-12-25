@@ -1,4 +1,11 @@
-import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Query,
+  UseGuards,
+  Headers,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { User } from 'src/users/users.entity';
@@ -13,10 +20,8 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Get('profile')
-  getProfile() {
-    return {
-      profile: 'dummy data',
-    };
+  @Get('logout')
+  async getProfile(@Query() user: User, @Headers() req) {
+    return this.authService.logoutUser(user.id, req.authorization);
   }
 }

@@ -33,6 +33,15 @@ export class UsersController {
     return this.service.getUserById(params.id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @Get('profile/:id')
+  getProfile(@Param('id') id) {
+    return {
+      userId: id,
+      message: 'Dummy data.',
+    };
+  }
+
   @Post()
   create(@Body() user: User) {
     return this.service.createUser(user);
