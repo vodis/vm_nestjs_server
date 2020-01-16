@@ -43,4 +43,18 @@ export class UsersRulesService {
     };
     return await this.usersRulesRepository.save(userRules);
   }
+
+  async updateDefaultRules(id: string, roles: { user: boolean, admin: boolean, guest: boolean }, voucher_id: string): Promise<UsersRules> {
+    if (voucher_id === '__root__') {
+      const userRules = {
+        id,
+        user: roles.user,
+        admin: roles.admin,
+        guest: roles.guest,
+        update_at: new Date(),
+        voucher_id
+      };
+      return await this.usersRulesRepository.save(userRules);
+    }
+  }
 }

@@ -12,14 +12,26 @@ export class AdminService {
     private readonly usersRulesService: UsersRulesService,
   ) {}
 
-  async adminAuthorization(user: User): Promise<any> {
+  async adminAuthorization(data: User): Promise<any> {
     const result = await this.authService.validateUser(
-      user.email,
-      user.password,
+      data.email,
+      data.password,
     );
-    const { admin } = await this.usersRulesService.findRulesById(result.id);
-    if (!admin) {
-      console.log('functionWithInitialLogin');
+    const user = await this.usersRulesService.findRulesById(result.id);
+    if (!user.admin) {
+      const usersRules = await this.usersRulesService.findAllRules();
+      if (!usersRules.some(user => user.admin === true)) {
+        this.initialApplyAdminRules(user.id);
+      }
     }
+  }
+
+  private async initialApplyAdminRules(id) {
+    const roles = {
+      user: true,
+      admin: true,
+      guest: true,
+    };
+    return await this.usersRulesService.updateDefaultRules(id, roles, '__root__');
   }
 }
