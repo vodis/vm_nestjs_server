@@ -15,6 +15,9 @@ export class UsersRules extends BaseEntity {
   guest: boolean;
 
   @Column()
+  voucher_id: string;
+
+  @Column()
   create_at: Date;
 
   @Column()

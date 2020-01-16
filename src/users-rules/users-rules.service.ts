@@ -16,6 +16,21 @@ export class UsersRulesService {
     });
   }
 
+  async findRulesById(_id: string): Promise<UsersRules> {
+    return await this.usersRulesRepository.findOne({
+      select: [
+        'id',
+        'user',
+        'admin',
+        'guest',
+        'create_at',
+        'update_at',
+        'voucher_id',
+      ],
+      where: [{ id: _id }],
+    });
+  }
+
   async createDefaultRules(id: string): Promise<UsersRules> {
     const userRules = {
       id,
@@ -24,6 +39,7 @@ export class UsersRulesService {
       guest: false,
       create_at: new Date(),
       update_at: new Date(),
+      voucher_id: '',
     };
     return await this.usersRulesRepository.save(userRules);
   }
