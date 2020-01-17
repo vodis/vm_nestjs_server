@@ -27,10 +27,8 @@ export class AuthService {
       );
     }
 
-    const { password, ...result } = await this.usersService.updateToken(
-      user[0],
-    );
-    return result;
+    const result = await this.usersService.updateToken(user[0]);
+    return { token: result.token };
   }
 
   async login(email, password) {
