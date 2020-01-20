@@ -1,5 +1,6 @@
 import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import { UsersService } from '../users/users.service';
 
@@ -27,8 +28,13 @@ export class AuthService {
       );
     }
 
-    const result = await this.usersService.updateToken(user[0]);
-    return { token: result.token };
+    const { id, token } = await this.usersService.updateToken(user[0]);
+    const decoded: any = jwt.decode(token);
+    return {
+      id,
+      token,
+      expiresAt: decoded.exp,
+    };
   }
 
   async login(email, password) {
