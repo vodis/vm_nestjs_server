@@ -8,6 +8,7 @@ import * as uuidv4 from 'uuid/v4';
 import * as jwt from 'jsonwebtoken';
 import tokenConfig from '../config/token.config';
 import { UsersRulesService } from '../users-rules/users-rules.service';
+import { TokenPayloadDTO } from './dto/users.dto';
 
 @Injectable()
 export class UsersService {
@@ -106,6 +107,14 @@ export class UsersService {
       throw new HttpException('Insufficiently rights', HttpStatus.FORBIDDEN);
     }
     return user;
+  }
+
+  async readTokenPayload(authorization: string): Promise<any> {
+    const token = authorization.match('Bearer')
+      ? authorization.split(' ')[2]
+      : authorization;
+    const payload = await jwt.decode(token);
+    return payload;
   }
 
   private async createToken(

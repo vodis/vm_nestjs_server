@@ -12,14 +12,11 @@ export class AdminService {
     private readonly usersRulesService: UsersRulesService,
   ) {}
 
-  async adminAuthorization(user: User): Promise<any> {
-    const result = await this.authService.validateUser(
-      user.email,
-      user.password,
-    );
-    const { admin } = await this.usersRulesService.findRulesById(result.id);
-    if (!admin) {
-      console.log('functionWithInitialLogin');
-    }
+  async isAdmin(authorization: string): Promise<{}> {
+    const { id } = await this.usersService.readTokenPayload(authorization);
+    const { admin } = await this.usersRulesService.findRulesById(id);
+    return {
+      admin,
+    };
   }
 }
