@@ -14,9 +14,11 @@ export class AdminService {
 
   async isAdmin(authorization: string): Promise<{}> {
     const { id } = await this.usersService.readTokenPayload(authorization);
-    const { admin } = await this.usersRulesService.findRulesById(id);
+    const { guest, user, admin } = await this.usersRulesService.findRulesById(id);
     return {
-      admin,
+      guest,
+      user,
+      admin
     };
   }
 }
